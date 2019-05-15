@@ -28,6 +28,10 @@
 	} else {
 	    $current_url = $_SERVER['REQUEST_SCHEME'].'://'.rtrim( $_SERVER['SERVER_NAME'], '/'). '/';
 	}
+	if (isset($_GET['md5']) ) { // to encode with md5...
+		echo md5($_POST['md5']);
+		exit;
+	}
 	/* ########## Collect every useful data and store in the Log table ########## */
 	$now = DateTime::createFromFormat('U.u', microtime(true))->setTimezone(new DateTimeZone('Europe/Rome'));
 	$dtm = $now->format("Y-m-d H.i.s.uP");
@@ -42,7 +46,7 @@
 	$lng = (isset($bua) ? $lng : $_SERVER['HTTP_ACCEPT_LANGUAGE'] );
 	$log = $dtm."\t"."\t".$ipa."\t".$ref."\t".$bua."\t".$lng."\r\n";
 	$sql = "INSERT INTO live_log (datetime, log_type, req_data, ipaddress, referrer, useragent, language) 
-					VALUES ('$dtm', '$typ', '$req', '$ipa', '$ref', '$bua', '$lng')"; // Creating a query to store log data
+				 VALUES ('$dtm', '$typ', '$req', '$ipa', '$ref', '$bua', '$lng')"; // Creating a query to store log data
 	$db->exec($sql); // Executing the query
 	$g = ""; // $g contain optional message about invalid username or password
 	if (isset($_POST['username']) && isset($_POST['password']) && !empty($_POST['username']) && !empty($_POST['password'])) { // if submited username and password...
@@ -115,6 +119,7 @@
 				$m = "";
 				/* ########## Someone want to verify a QR Code, showing also all reservation details ########## */
 				if (isset($_GET['verifica'])) {
+					?><div id="ticket"><?php 
 					$s = "";
 					$e = 0;
 					$m = $_GET['verifica'];
@@ -122,7 +127,9 @@
 							  FROM 'live_sid'
 							 WHERE md5 = '".$m."' AND status = '2'"; // Create a query to found exact md5 of QR Code of a regular reservation (status = 2)
 					$query = $db->query($sql); // Executing the query
-					?><div id="ticket">
+					$row = $query->fetchArray();
+					if ( $row > 0 ) {
+						$query = $db->query($sql); // Executing the query, again ?>
 						<table border="1" cellpadding="4" style="text-align:center;padding:0.2em;margin:0 auto;border:1px solid #333; border-collapse:collapse;">
 							<thead>
 								<th><strong>Posto</strong></th>
@@ -145,14 +152,18 @@
 								$l = $row['email'];
 								$t = $row['timestamp'];
 							} ?>
-							<caption><h4>Dettagli Prenotazione</h4>
-								<h3 style="font-size:1.6em;font-family:Times,Serif;color:#1c5280;font-style:italic;line-height:1em;">venerdì 7 giugno 2019<br>Teatro Sociale, 20.45</h3><div>
-								Incaricato: <?=$u?><br />
-								Prenotante: <?=$l?><br />
-								Data e ora: <?=$t?><br />&nbsp;
-							</div></caption>
+								<caption><h4>Dettagli Prenotazione</h4>
+									<h3 style="font-size:1.6em;font-family:Times,Serif;color:#1c5280;font-style:italic;line-height:1em;">venerdì 7 giugno 2019<br>Teatro Sociale, 20.45</h3><div>
+									Incaricato: <?=$u?><br />
+									Prenotante: <?=$l?><br />
+									Data e ora: <?=$t?><br />&nbsp;
+								</div></caption>
 							<tfoot><td colspan="5" align="right"><strong>Pagato <?="&euro; ".$e.",00"?>&nbsp;</strong></td></tfoot>
 						</table><div style="font-size:1.2em;font-family:Times,Serif;color:#1c5280;font-style:italic;font-weight:bold;margin: 0.5em 0;"><span style="font-size:2em;color:#00c;vertical-align:sub !important;">&#0149;</span>&nbsp;Collocazione dei Posti prenotati</div>
+					<?php } else { ?>
+							<img src='img/annullata-bn.png'><br /><br /><div style='color:#f00;font-weight:bold;'>Prenotazione inesistente...</div>
+							<div style='color:#f00;'>Contattare il Responsabile per ulteriori eventuali controlli e azioni: responsabile.live2019@canossacampus.it</div>
+					<?php } ?>
 					</div><br /><?php
 				}
 				/* ########## A delegate is submitting a reservation, check if every seat if free and calculate total price ########## */
@@ -293,27 +304,28 @@
 
 			<!-- ########## Reading DB to generate the interactive SVG map of seats ########## -->
 			<svg width="100%" class="img-fluid" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" viewBox="0 0 1280 960">
-				<!-- palcoscenico --><rect width="505" height="100" fill="#999" x="395" y="15"></rect><!-- central-area (3 gray arcs) -->
-				<g id="zone1a" style="stroke:none" transform="matrix(0.99995934,-0.00901778,0.0088329,0.97945818,-5.87908,17.711631)"> <path style="fill:#d4d4d4;stroke:none" d="m 384,494 c 40.33401,43.08615 90.05322,77.17553 145.76676,97.02041 48.58755,17.9285 101.24924,24.37869 152.79423,19.17065 C 741.43123,604.7597 799.4692,584.20274 848.04007,550.30395 871.95983,533.58436 894.72998,515.01533 914,493 883.33333,463.66667 852.66667,434.33333 822,405 785.08434,446.51098 732.98721,473.68729 677.77999,480.37 604.01573,490.12899 527.5513,459.96904 478,405 c -31.33333,29.66667 -62.66667,59.33333 -94,89 z" id="zone1" /> </g>
+				<!-- grey rectangle for palcoscenico --><rect width="505" height="100" fill="#999" x="395" y="15"></rect>
+				<!-- grey areas for gallerie --><g id="zone1a" style="stroke:none" transform="matrix(0.99995934,-0.00901778,0.0088329,0.97945818,-5.87908,17.711631)"> <path style="fill:#d4d4d4;stroke:none" d="m 384,494 c 40.33401,43.08615 90.05322,77.17553 145.76676,97.02041 48.58755,17.9285 101.24924,24.37869 152.79423,19.17065 C 741.43123,604.7597 799.4692,584.20274 848.04007,550.30395 871.95983,533.58436 894.72998,515.01533 914,493 883.33333,463.66667 852.66667,434.33333 822,405 785.08434,446.51098 732.98721,473.68729 677.77999,480.37 604.01573,490.12899 527.5513,459.96904 478,405 c -31.33333,29.66667 -62.66667,59.33333 -94,89 z" id="zone1" /> </g>
 				<g id="zone2a" style="stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke:none"> <path style="fill:#d4d4d4;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-miterlimit:4" d="m 429,905 c 136.27515,48.41475 289.08198,51.27174 426,4 -19,-61 -38,-122 -57,-183 -99.34133,32.81118 -209.69967,32.2238 -308,-4 -20.33333,61 -40.66667,122 -61,183 z" id="zone2" /> </g>
 				<g id="zone3a" style="stroke:none" transform="matrix(1.0238797,0,0,1,-16.097625,0.70710678)"> <path style="fill:#d4d4d4;stroke:none" d="M 378,669 C 515.35193,762.66809 702.50493,775.94091 851.63276,702.34955 872.60826,693.08849 891.662,680.18892 911,668 886.33333,628.66667 861.66667,589.33333 837,550 760.75162,602.23621 663.54006,620.96657 573.2855,601.36087 530.26789,592.77279 489.47486,574.16497 453,550 c -25,39.66667 -50,79.33333 -75,119 z" id="zone3" /> </g>
-				<path id="barcacciasx" style="fill:none;stroke:#4d4d4d;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" d="m 843.19975,136.54992 c -8.29289,11.7506 -10.13388,24.098 -9.88388,35.19454 0,10.78338 1.38083,26.73655 10.92677,41.94455 7.07107,9.89949 14.46142,16.12347 28.95711,17.36091 14.31914,0.9584 25.02052,-7.66912 27.32322,-18.37652" />
+				<!-- curves for barcaccia --><path id="barcacciasx" style="fill:none;stroke:#4d4d4d;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" d="m 843.19975,136.54992 c -8.29289,11.7506 -10.13388,24.098 -9.88388,35.19454 0,10.78338 1.38083,26.73655 10.92677,41.94455 7.07107,9.89949 14.46142,16.12347 28.95711,17.36091 14.31914,0.9584 25.02052,-7.66912 27.32322,-18.37652" />
 				<path id="barcacciasx" style="fill:none;stroke:#4d4d4d;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" d="m 452.20889,137.21358 c 8.29289,11.7506 10.13388,24.098 9.88388,35.19454 0,10.78338 -1.38083,26.73655 -10.92677,41.94455 -7.07107,9.89949 -14.46142,16.12347 -28.95711,17.36091 -14.31914,0.9584 -25.02052,-7.66912 -27.32322,-18.37652" />
-				<!-- 3 arches lines --><path d="M145,255 a1,1 0 0,0 995,0" fill="none" stroke="#555" stroke-width="4"/><path d="M270,230 a1,1 0 0,0 755,0" fill="none" stroke="#555" stroke-width="4"/><path d="M395,230 a1,1 0 0,0 505,0" fill="none" stroke="#555" stroke-width="4"/>
-				<!-- 3 vertical lines, sx --><line x1="145" y1="60" x2="145" y2="255" stroke="#555" stroke-width="4" /><line x1="270" y1="60" x2="270" y2="230" stroke="#555" stroke-width="4" /><line x1="395" y1="60" x2="395" y2="230" stroke="#555" stroke-width="4" /><!-- vertical lines, dx --><line x1="1140" y1="60" x2="1140" y2="255" stroke="#555" stroke-width="4" /><line x1="1025" y1="60" x2="1025" y2="230" stroke="#555" stroke-width="4" /><line x1="900" y1="60" x2="900" y2="230" stroke="#555" stroke-width="4" />
-				<!-- 3 horizontal lines, sx --><line x1="115" y1="115" x2="145" y2="115" stroke="#555" stroke-width="4" /><line x1="240" y1="115" x2="270" y2="115" stroke="#555" stroke-width="4" /><line x1="365" y1="115" x2="395" y2="115" stroke="#555" stroke-width="4" /><!-- horizontal lines, dx --><line x1="1140" y1="115" x2="1170" y2="115" stroke="#555" stroke-width="4" /><line x1="1025" y1="115" x2="1055" y2="115" stroke="#555" stroke-width="4" /><line x1="900" y1="115" x2="930" y2="115" stroke="#555" stroke-width="4" />
+				<!-- 3 arches for gallerie --><path d="M145,255 a1,1 0 0,0 995,0" fill="none" stroke="#555" stroke-width="4"/><path d="M270,230 a1,1 0 0,0 755,0" fill="none" stroke="#555" stroke-width="4"/><path d="M395,230 a1,1 0 0,0 505,0" fill="none" stroke="#555" stroke-width="4"/>
+				<!-- 3 vertical lines, for gallerie sx --><line x1="145" y1="60" x2="145" y2="255" stroke="#555" stroke-width="4" /><line x1="270" y1="60" x2="270" y2="230" stroke="#555" stroke-width="4" /><line x1="395" y1="60" x2="395" y2="230" stroke="#555" stroke-width="4" /><!-- vertical lines, dx --><line x1="1140" y1="60" x2="1140" y2="255" stroke="#555" stroke-width="4" /><line x1="1025" y1="60" x2="1025" y2="230" stroke="#555" stroke-width="4" /><line x1="900" y1="60" x2="900" y2="230" stroke="#555" stroke-width="4" />
+				<!-- 3 horizontal lines, for palcoscenico --><line x1="115" y1="115" x2="145" y2="115" stroke="#555" stroke-width="4" /><line x1="240" y1="115" x2="270" y2="115" stroke="#555" stroke-width="4" /><line x1="365" y1="115" x2="395" y2="115" stroke="#555" stroke-width="4" /><!-- horizontal lines, dx --><line x1="1140" y1="115" x2="1170" y2="115" stroke="#555" stroke-width="4" /><line x1="1025" y1="115" x2="1055" y2="115" stroke="#555" stroke-width="4" /><line x1="900" y1="115" x2="930" y2="115" stroke="#555" stroke-width="4" />
 				<!-- text labels, format styles --><style>.big { font: bold 3em sans-serif; } .med { font: bold 2em sans-serif; } .let { font: bold 1.5em sans-serif; } .sma { font: bold 0.8em sans-serif; } </style>
 				<text x="645" y="65" class="big" fill="#fff" text-anchor="middle">TEATRO SOCIALE</text><text x="645" y="100" class="med" fill="#fff" text-anchor="middle">palcoscenico</text>
-				<text x="305" y="50" class="sma" fill="#00c">PROSCENIO 1</text><text x="906" y="50" class="sma" fill="#00c">PROSCENIO 1</text><text x="175" y="50" class="sma" fill="#00c">PROSCENIO 2</text><text x="1030" y="50" class="sma" fill="#00c">PROSCENIO 2</text><text x="60" y="50" class="sma" fill="#00c">PROSCENIO 3</text><text x="1140" y="50" class="sma" fill="#00c">PROSCENIO 3</text>
-				<text x="405" y="135" class="sma" fill="#00c">BARCACCIA sx</text><text x="805" y="135" class="sma" fill="#00c">BARCACCIA dx</text>
-				<text x="645" y="275" class="med" fill="#00c" text-anchor="middle">PLATEA</text><text x="645" y="470" class="med" fill="#00c" text-anchor="middle">PLATEA</text><rect width="120" height="36" fill="none" stroke="#333" stroke-width="2" stroke-dasharray="10 5" x="585" y="528"></rect><text x="645" y="555" text-anchor="middle" class="let" fill="#555">REGIA</text>
-				<text x="645" y="595" class="med" fill="#00c" text-anchor="middle">GALLERIA 1</text><text x="645" y="740" class="med" fill="#00c" text-anchor="middle">GALLERIA 2</text><text x="645" y="935" class="med" fill="#00c" text-anchor="middle">GALLERIA 3</text>
-				<text x="50" y="560" class="med" fill="#c0c" text-anchor="start">LATO</text><text x="50" y="590" class="med" fill="#c0c" text-anchor="start">SINISTRO</text>
-				<text x="1240" y="560" class="med" fill="#c0c" text-anchor="end">LATO</text><text x="1240" y="590" class="med" fill="#c0c" text-anchor="end">DESTRO</text>
-				<text x="645" y="910" class="med" fill="#c0c" text-anchor="middle">CENTRALE</text>
-				<text x="310" y="110" class="med" fill="#00c" transform="rotate(270 310,110)" text-anchor="end">GALLERIA 1</text><text x="1000" y="110" class="med" fill="#00c" transform="rotate(270 1000,110)" text-anchor="end">GALLERIA 1</text>
-				<text x="185" y="110" class="med" fill="#00c" transform="rotate(270 185,110)" text-anchor="end">GALLERIA 2</text><text x="1125" y="110" class="med" fill="#00c" transform="rotate(270 1125,110)" text-anchor="end">GALLERIA 2</text>
-				<text x="75" y="110" class="med" fill="#00c" transform="rotate(270 75,110)" text-anchor="end">GALLERIA 3</text><text x="1235" y="110" class="med" fill="#00c" transform="rotate(270 1235,110)" text-anchor="end">GALLERIA 3</text>
+				<text x="305" y="50" class="sma" fill="#606">PROSCENIO 1</text><text x="906" y="50" class="sma" fill="#606">PROSCENIO 1</text><text x="175" y="50" class="sma" fill="#606">PROSCENIO 2</text><text x="1030" y="50" class="sma" fill="#606">PROSCENIO 2</text><text x="60" y="50" class="sma" fill="#606">PROSCENIO 3</text><text x="1140" y="50" class="sma" fill="#606">PROSCENIO 3</text>
+				<text x="405" y="135" class="sma" fill="#606">BARCACCIA sx</text><text x="805" y="135" class="sma" fill="#606">BARCACCIA dx</text>
+				<text x="635" y="135" class="sma" fill="#c0c" text-anchor="end">LATO SINISTRO</text><text x="655" y="135" class="sma" fill="#c0c" text-anchor="start">LATO DESTRO</text>
+				<text x="645" y="275" class="med" fill="#606" text-anchor="middle">PLATEA</text><text x="645" y="470" class="med" fill="#606" text-anchor="middle">PLATEA</text><text x="645" y="570" text-anchor="middle" class="let" fill="#c0c">CENTRALE</text><rect x="582" y="524" width="130" height="26" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="10 5"></rect><text x="645" y="542" text-anchor="middle" class="sma" fill="#666">REGIA</text>
+				<text x="645" y="595" class="med" fill="#606" text-anchor="middle">GALLERIA 1</text><text x="645" y="740" class="med" fill="#606" text-anchor="middle">GALLERIA 2</text><text x="645" y="935" class="med" fill="#606" text-anchor="middle">GALLERIA 3</text>
+				<text x="50" y="560" class="let" fill="#c0c" text-anchor="start">LATO</text><text x="50" y="590" class="let" fill="#c0c" text-anchor="start">SINISTRO</text>
+				<text x="1240" y="560" class="let" fill="#c0c" text-anchor="end">LATO</text><text x="1240" y="590" class="let" fill="#c0c" text-anchor="end">DESTRO</text>
+				<text x="645" y="910" class="let" fill="#c0c" text-anchor="middle">CENTRALE</text>
+				<text x="310" y="110" class="med" fill="#606" transform="rotate(270 310,110)" text-anchor="end">GALLERIA 1</text><text x="1000" y="110" class="med" fill="#606" transform="rotate(270 1000,110)" text-anchor="end">GALLERIA 1</text>
+				<text x="185" y="110" class="med" fill="#606" transform="rotate(270 185,110)" text-anchor="end">GALLERIA 2</text><text x="1125" y="110" class="med" fill="#606" transform="rotate(270 1125,110)" text-anchor="end">GALLERIA 2</text>
+				<text x="75" y="110" class="med" fill="#606" transform="rotate(270 75,110)" text-anchor="end">GALLERIA 3</text><text x="1235" y="110" class="med" fill="#606" transform="rotate(270 1235,110)" text-anchor="end">GALLERIA 3</text>
 				<!-- Platea, central-letters --><text x="644" y="178" class="let" fill="#000" text-anchor="middle">A</text><text x="644" y="196" class="let" fill="#000" text-anchor="middle">B</text><text x="644" y="214" class="let" fill="#000" text-anchor="middle">C</text><text x="644" y="232" class="let" fill="#000" text-anchor="middle">D</text><text x="644" y="250" class="let" fill="#000" text-anchor="middle">E</text><text x="644" y="295" class="let" fill="#000" text-anchor="middle">F</text><text x="644" y="313" class="let" fill="#000" text-anchor="middle">G</text><text x="644" y="331" class="let" fill="#000" text-anchor="middle">H</text><text x="644" y="349" class="let" fill="#000" text-anchor="middle">I</text><text x="644" y="367" class="let" fill="#000" text-anchor="middle">L</text><text x="644" y="385" class="let" fill="#000" text-anchor="middle">M</text><text x="644" y="403" class="let" fill="#000" text-anchor="middle">N</text><text x="644" y="421" class="let" fill="#000" text-anchor="middle">O</text><text x="644" y="439" class="let" fill="#000" text-anchor="middle">P</text>
 				<!-- Gallerie 1-2-3, top-letters --><text x="85" y="320" class="let" fill="#000" text-anchor="middle" transform="rotate(60 85,320)">G</text><text x="1210" y="320" class="let" fill="#000" text-anchor="middle" transform="rotate(-60 1210,320)">G</text><text x="195" y="295" class="let" fill="#000" text-anchor="middle" transform="rotate(60 195,295)">E</text><text x="1100" y="295" class="let" fill="#000" text-anchor="middle" transform="rotate(-60 1100,295)">E</text><text x="320" y="295" class="let" fill="#000" text-anchor="middle" transform="rotate(60 320,295)">E</text><text x="970" y="300" class="let" fill="#000" text-anchor="middle" transform="rotate(-60 970,295)">E</text>
 				<!-- Galleria 1, central-letters --><text x="445" y="430" class="let" fill="#000" text-anchor="middle" transform="rotate(40 445,425)">A</text><text x="850" y="430" class="let" fill="#000" text-anchor="middle" transform="rotate(-40 845,430)">A</text><text x="430" y="450" class="let" fill="#000" text-anchor="middle" transform="rotate(40 430,445)">B</text><text x="865" y="455" class="let" fill="#000" text-anchor="middle" transform="rotate(-40 855,450)">B</text><text x="415" y="470" class="let" fill="#000" text-anchor="middle" transform="rotate(40 415,465)">C</text><text x="880" y="480" class="let" fill="#000" text-anchor="middle" transform="rotate(-40 865,470)">C</text><text x="400" y="490" class="let" fill="#000" text-anchor="middle" transform="rotate(40 400,485)">D</text><text x="895" y="505" class="let" fill="#000" text-anchor="middle" transform="rotate(-40 875,490)">D</text>

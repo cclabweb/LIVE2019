@@ -1,5 +1,6 @@
 # LIVE2019
-Web App to collect reservation tickets for Canossa Campus Happening Live, 2019
+Web App to collect reservation tickets for Canossa Campus Happening Live, 2019.
+The Web App may be integrated into a Wordpress site (https://canossacampus.it/LIVE) or can be opened as standalone (https://canossacampus.it/LIWE).
 
 ## Description
 For more information read the description at the top of the PHP file.

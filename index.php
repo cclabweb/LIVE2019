@@ -7,9 +7,9 @@
  * The project include a Wordpress site, with SQLite database used also for booking and users. The Wordpress content consist of posts and graphics about Live 2019.
  * Posts contain links and information about iOS and Android app to check QR codes.
  * Near about every lines of code has a comment to explain his scope, on the right.
- * TO DO: price is hard encoded in some lines (Javascript), need to be read from DB may be useful a more secure email validation, with recipient replay confirmation
+ * TO DO: price is hard encoded in some lines (Javascript), need to be read from DB, may be useful to check existance of recipient email before send confirmation
  * --------------------------------------------------------------------------------
- * CPSoft, 1989-2019. - ocdl.it/cw - Released 01/05/2019 - Updated 17.20 05/05/2019
+ * CPSoft, 1989-2019. - ocdl.it/cw - Released 01/05/2019 - Updated 11.21 15/05/2019
  * Licenza software GNU/GPL 3.0 - Licenza documentazione Creative Commons BY-SA 2.5
  * ============================================================================= */
 	$db = new SQLite3('../database/wordpress.sqlite'); // open SQLite database (DB)
@@ -42,13 +42,13 @@
 	$lng = (isset($bua) ? $lng : $_SERVER['HTTP_ACCEPT_LANGUAGE'] );
 	$log = $dtm."\t"."\t".$ipa."\t".$ref."\t".$bua."\t".$lng."\r\n";
 	$sql = "INSERT INTO live_log (datetime, log_type, req_data, ipaddress, referrer, useragent, language) 
-		     VALUES ('$dtm', '$typ', '$req', '$ipa', '$ref', '$bua', '$lng')"; // Creating a query to store log data
+					VALUES ('$dtm', '$typ', '$req', '$ipa', '$ref', '$bua', '$lng')"; // Creating a query to store log data
 	$db->exec($sql); // Executing the query
 	$g = ""; // $g contain optional message about invalid username or password
 	if (isset($_POST['username']) && isset($_POST['password']) && !empty($_POST['username']) && !empty($_POST['password'])) { // if submited username and password...
 		$sql = "SELECT rowid, *
-			  FROM 'live_uid'
-			 WHERE username = '".$_POST['username']."' AND password = '".md5($_POST['password'])."'"; // Create a query for identical username and md5 of password
+				  FROM 'live_uid'
+				 WHERE username = '".$_POST['username']."' AND password = '".md5($_POST['password'])."'"; // Create a query for identical username and md5 of password
 		$query = $db->query($sql); // Executing the query...
 		$row = $query->fetchArray(); // Collects every resulting records in $row
 		if ($row > 0) { // if found at last a single record... (that's unique cause the username is unique in DB)
@@ -61,9 +61,10 @@
 			exit; // ...exit (because the page was just reloaded)
 		} else {
 			$g="Nome utente o password non corretti."; // ...submited username and password are invalid, alert message in $g
-			mail("[PRIVACY]@canossacampus.it", "LIVE2019, ".$g." ".$_POST['username'], $log);
+			mail("login.live2019@canossacampus.it", "LIVE2019, ".$g." ".$_POST['username'], $log);
 		}
-	} /* ########## Starting HTML document (meta, title, CSS external and internal, JS) ########## */
+	}
+	/* ########## Starting HTML document (meta, title, CSS external and internal, JS) ########## */
 ?>
 <!DOCTYPE html>
 <html lang="it">
@@ -109,7 +110,8 @@
 					zone3.style.fill = "rgb(212,212,212)";
 				}
 			</script>
-			<div class="container"><?php
+			<div class="container">
+				<?php
 				$m = "";
 				/* ########## Someone want to verify a QR Code, showing also all reservation details ########## */
 				if (isset($_GET['verifica'])) {
@@ -210,9 +212,9 @@
 						$PNG_TEMP_DIR = dirname(__FILE__)."/phpqrcode/temp/";
 						$PNG_WEB_DIR = './phpqrcode/temp/';
 						$filename = $PNG_TEMP_DIR.'Live2019_'.$m.'.png';
-						QRcode::png($current_url."index.php?verifica=".$m, $filename, 'M', 4, 2);
+						QRcode::png("https://www.canossacampus.it/LIWE?verifica=".$m, $filename, 'M', 4, 2);
 						/* ########## Sending also an EMail to the Booker ########## */
-						if ( !mail_attachment($_POST['email'], $PNG_TEMP_DIR, basename($filename), "Campus Happening Live, 2019 - Prenotazione confermata", "Buongiorno, grazie per aver prenotato online, vi aspettiamo venerd&igrave; 7 giugno 2019 alle 20.45 al Teatro Sociale.<br/>Per tutti i dettagli della prenotazione, qui confermata, aprire <a href='https://canossacampus.it/LIWE?verifica=".str_replace("Live2019_", "", str_replace(".png", "", basename($filename)))."'>l'indirizzo</a> contenuto nel Codice QR allegato.<br />Istruzioni e informazioni disponibili a questo <a href='http://canossacampus.it/LIVE'>indirizzo</a>.<br /><br /><h4>".$a."</h4>".str_replace($p, "<br />", $s)."<br />&nbsp;".$h.$b) ) { 
+						if ( !mail_attachment($_POST['email'], $PNG_TEMP_DIR, basename($filename), "Campus Happening Live, 2019 - Prenotazione confermata", "Buongiorno, grazie per aver prenotato online, vi aspettiamo venerd&igrave; 7 giugno 2019 alle 20.45 al Teatro Sociale.<br/>Per tutti i dettagli della prenotazione, qui confermata, aprire <a href='https://www.canossacampus.it/LIWE?verifica=".str_replace("Live2019_", "", str_replace(".png", "", basename($filename)))."'>l'indirizzo</a> contenuto nel Codice QR allegato.<br />Istruzioni e informazioni disponibili a questo <a href='http://canossacampus.it/LIVE'>indirizzo</a>.<br /><br /><h4>".$a."</h4>".str_replace($p, "<br />", $s)."<br />&nbsp;".$h.$b) ) { 
 							?><script type="text/javascript">alert("ATTENZIONE, problemi nell'invio dell'E-Mail...")</script><?php } ?>
 						<div id="smartphone">
 							<img src="<?=$PNG_WEB_DIR.basename($filename)?>" /><br /><?php // Showing the QR Code from the md5 of $s (the unique key of this reservation)
@@ -288,6 +290,7 @@
 					</form>
 				</div>
 			<?php } ?>
+
 			<!-- ########## Reading DB to generate the interactive SVG map of seats ########## -->
 			<svg width="100%" class="img-fluid" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" viewBox="0 0 1280 960">
 				<!-- palcoscenico --><rect width="505" height="100" fill="#999" x="395" y="15"></rect><!-- central-area (3 gray arcs) -->
@@ -371,7 +374,7 @@
 							if ( isset($_SESSION['rule']) && $_SESSION['rule'] < '3' ) { // If a delegated is logged in may reserve seats with above Javascript
 								echo "checkseat('".$row['idseat']."')";
 							} else { // If nobody is logged in then showing only an alert about free or reserved seats
-								echo ($row['status']>1 ? "alert('Posto n. ".$row['seat']." - ".$row['zone'].". Lato ".$row['side'].", Fila ".$row['file']." | PRENOTATO ".$row['timestamp']."')" : "alert('Le Prenotazioni sono riservate alle persone Incaricate, cercatele su: https://canossacampus.it/LIVE')" );
+								echo ($row['status']>1 ? "alert('Posto n. ".$row['seat']." - ".$row['zone'].". Lato ".$row['side'].", Fila ".$row['file']." | PRENOTATO ".$row['timestamp']."')" : "alert('Le Prenotazioni sono riservate alle persone Incaricate, cercatele su: https://www.canossacampus.it/LIVE')" );
 							} ?>">
 						<title id="note_<?=$row['idseat']?>"><?php echo "Posto n. ".$row['seat']." - ".$row['zone'].". Lato ".$row['side'].", Fila ".$row['file'].
 						($row['status']>1 ? " | PRENOTATO ".$row['timestamp'] : ""); ?></title>
@@ -380,9 +383,8 @@
 			</svg>
 		</div>
 	</body>
-</html><?php
-// Ideas from: https://stackoverflow.com/questions/3582126/php-mail-cc-field
-// and: https://stackoverflow.com/questions/29405407/send-email-with-attachment-php-not-working
+</html>
+<?php
 function mail_attachment($mailto, $path, $filename, $subject, $message) {
 	$file = $path.$filename;
 	$file_size = filesize($file);

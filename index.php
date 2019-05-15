@@ -9,7 +9,7 @@
  * Near about every lines of code has a comment to explain his scope, on the right.
  * TO DO: price is hard encoded in some lines (Javascript), need to be read from DB, may be useful to check existance of recipient email before send confirmation
  * --------------------------------------------------------------------------------
- * CPSoft, 1989-2019. - ocdl.it/cw - Released 01/05/2019 - Updated 11.21 15/05/2019
+ * CPSoft, 1989-2019. - ocdl.it/cw - Released 01/05/2019 - Updated 17.25 15/05/2019
  * Licenza software GNU/GPL 3.0 - Licenza documentazione Creative Commons BY-SA 2.5
  * ============================================================================= */
 	$db = new SQLite3('../database/wordpress.sqlite'); // open SQLite database (DB)
@@ -80,7 +80,7 @@
 		<link href="css/bootstrap.min.css" rel="stylesheet"><!-- These three lines for Botstrap framework... -->
 		<link href="css/bootstrap-responsive.min.css" rel="stylesheet">
 		<script src="js/bootstrap.min.js"></script>
-		<style><!-- May be useful an external CSS file...? -->
+		<!-- May be useful an external CSS file...? --><style>
 			#header-logo { height: 6em !important; }
 			#header-live { height: 6em !important; margin-bottom: 2em; text-align: center; background-size: contain !important; background-color: #000 }
 			@media( min-width: 520px ){ #header-live { background-image: url('img/canossacampus.png'), url('img/pappagallo.jpg'); background-position: top left, bottom right; background-repeat: no-repeat, no-repeat; } }
@@ -93,23 +93,23 @@
 		</style>
 	</head>
 	<body id="live-body" style="background: none; padding: 20px 0;"><!-- Below Header is displayed only outside Wordpress* -->
-		<header id="header-live"><a href="https://www.canossacampus.it/live"><img id="header-logo" src="img/campus-live.png" title="CANOSSA CAMPUS HAPPENING LIVE 2019 | VENERDI 7 GIUGNO 2019 ORE 20.45 TEATRO SOCIALE, BRESCIA"></a></header>
+		<header id="header-live"><a href="https://www.canossacampus.it/live"><img id="header-logo" src="img/campus-live.png" title="Canossa Campus Happening Live, 2019 | Teatro Sociale, Brescia. venerdi 7 giugno 2019, ore 20.45"></a></header>
 		<div id="live-main" class="container" style="text-align: center; width: 98%; ">
 			<script type="text/javascript"><!-- *This is the Javascript that display above Header only outside Wordpress -->
 				if ( window == window.top ) {
 					document.getElementById("live-body").style.padding = "0";
-					document.getElementById("zone1").style.fill = "rgb(255,255,255)";
-					document.getElementById("zone2").style.fill = "rgb(255,255,255)";
-					document.getElementById("zone3").style.fill = "rgb(255,255,255)";
+					document.getElementById("sector1").style.fill = "rgb(255,255,255)";
+					document.getElementById("sector2").style.fill = "rgb(255,255,255)";
+					document.getElementById("sector3").style.fill = "rgb(255,255,255)";
 					zone1.style.fill = "rgb(255,255,255)";
 					zone2.style.fill = "rgb(255,255,255)";
 					zone3.style.fill = "rgb(255,255,255)";
 				} else {
 					document.getElementById("header-live").style.display = "none"
 					document.getElementById("header-logo").style.display = "none"
-					document.getElementById("zone1").style.fill = "rgb(212,212,212)";
-					document.getElementById("zone2").style.fill = "rgb(212,212,212)";
-					document.getElementById("zone3").style.fill = "rgb(212,212,212)";
+					document.getElementById("sector1").style.fill = "rgb(212,212,212)";
+					document.getElementById("sector2").style.fill = "rgb(212,212,212)";
+					document.getElementById("sector3").style.fill = "rgb(212,212,212)";
 					zone1.style.fill = "rgb(212,212,212)";
 					zone2.style.fill = "rgb(212,212,212)";
 					zone3.style.fill = "rgb(212,212,212)";
@@ -163,8 +163,9 @@
 							<tfoot><td colspan="5" align="right"><strong>Pagato <?="&euro; ".$e.",00"?>&nbsp;</strong></td></tfoot>
 						</table><div style="font-size:1.2em;font-family:Times,Serif;color:#1c5280;font-style:italic;font-weight:bold;margin: 0.5em 0;"><span style="font-size:2em;color:#00c;vertical-align:sub !important;">&#0149;</span>&nbsp;Collocazione dei Posti prenotati</div>
 					<?php } else { ?>
-							<img src='img/annullata-bn.png'><br /><br /><div style='color:#f00;font-weight:bold;'>Prenotazione inesistente...</div>
-							<div style='color:#f00;'>Contattare il Responsabile per ulteriori eventuali controlli e azioni: responsabile.live2019@canossacampus.it</div>
+							<img src='img/annullata-bn.png'><br /><br /><div style='color:#f00;font-weight:bold;'>Prenotazione non trovata...</div>
+							<div style='color:#f00;'>Contattare <?php echo ( isset($_SESSION['username']) ? "il Responsabile per ulteriori eventuali controlli e azioni: responsabile.live2019@canossacampus.it" : "la persona Incaricata con cui avete fatto la Prenotazione per verificarla, grazie." ) 
+							if ( isset($_SESSION['username']) ) { mail("verify.live2019@canossacampus.it", "LIVE2019, ".$m." ".$_POST['username'], $log); } ?></div>
 					<?php } ?>
 					</div><br /><?php
 				}
@@ -200,7 +201,7 @@
 									$b = $b."<td>&euro; ".$row['price'].",00</td></tr>";
 								} else { // Almost one seat is not free, reservation  cancelled...
 									$s = $s.", <span style='color:#f00;font-weight:bold;'>".$i."</span>";
-									$a = "<img src='img/annullata-bn.png'><br /><br /><span style='color:#f00;'>Prenotazione annullata...</span>";
+									$a = "<img src='img/annullata.png'><br /><br /><span style='color:#f00;'>Prenotazione annullata...</span>";
 									$b = $b."<tr><td><span style='color:#f00;font-weight:bold;'>".$i."</span></td><td colspan='4' style='text-align:left;'><span style='color:#f00;'>Non disponibile</span></td></tr>";
 								}
 							}
@@ -307,9 +308,9 @@
 			<!-- ########## Reading DB to generate the interactive SVG map of seats ########## -->
 			<svg width="100%" class="img-fluid" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" viewBox="0 0 1280 960">
 				<!-- grey rectangle for palcoscenico --><rect width="505" height="100" fill="#999" x="395" y="15"></rect>
-				<!-- grey areas for gallerie --><g id="zone1a" style="stroke:none" transform="matrix(0.99995934,-0.00901778,0.0088329,0.97945818,-5.87908,17.711631)"> <path style="fill:#d4d4d4;stroke:none" d="m 384,494 c 40.33401,43.08615 90.05322,77.17553 145.76676,97.02041 48.58755,17.9285 101.24924,24.37869 152.79423,19.17065 C 741.43123,604.7597 799.4692,584.20274 848.04007,550.30395 871.95983,533.58436 894.72998,515.01533 914,493 883.33333,463.66667 852.66667,434.33333 822,405 785.08434,446.51098 732.98721,473.68729 677.77999,480.37 604.01573,490.12899 527.5513,459.96904 478,405 c -31.33333,29.66667 -62.66667,59.33333 -94,89 z" id="zone1" /> </g>
-				<g id="zone2a" style="stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke:none"> <path style="fill:#d4d4d4;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-miterlimit:4" d="m 429,905 c 136.27515,48.41475 289.08198,51.27174 426,4 -19,-61 -38,-122 -57,-183 -99.34133,32.81118 -209.69967,32.2238 -308,-4 -20.33333,61 -40.66667,122 -61,183 z" id="zone2" /> </g>
-				<g id="zone3a" style="stroke:none" transform="matrix(1.0238797,0,0,1,-16.097625,0.70710678)"> <path style="fill:#d4d4d4;stroke:none" d="M 378,669 C 515.35193,762.66809 702.50493,775.94091 851.63276,702.34955 872.60826,693.08849 891.662,680.18892 911,668 886.33333,628.66667 861.66667,589.33333 837,550 760.75162,602.23621 663.54006,620.96657 573.2855,601.36087 530.26789,592.77279 489.47486,574.16497 453,550 c -25,39.66667 -50,79.33333 -75,119 z" id="zone3" /> </g>
+				<!-- grey areas for gallerie --><g id="zone1a" style="stroke:none" transform="matrix(0.99995934,-0.00901778,0.0088329,0.97945818,-5.87908,17.711631)"> <path id="sector1a" style="fill:#d4d4d4;stroke:none" d="m 384,494 c 40.33401,43.08615 90.05322,77.17553 145.76676,97.02041 48.58755,17.9285 101.24924,24.37869 152.79423,19.17065 C 741.43123,604.7597 799.4692,584.20274 848.04007,550.30395 871.95983,533.58436 894.72998,515.01533 914,493 883.33333,463.66667 852.66667,434.33333 822,405 785.08434,446.51098 732.98721,473.68729 677.77999,480.37 604.01573,490.12899 527.5513,459.96904 478,405 c -31.33333,29.66667 -62.66667,59.33333 -94,89 z" id="zone1" /> </g>
+				<g id="zone2a" style="stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke:none"> <path id="sector1b" style="fill:#d4d4d4;stroke:none;stroke-width:2;stroke-dasharray:none;stroke-miterlimit:4" d="m 429,905 c 136.27515,48.41475 289.08198,51.27174 426,4 -19,-61 -38,-122 -57,-183 -99.34133,32.81118 -209.69967,32.2238 -308,-4 -20.33333,61 -40.66667,122 -61,183 z" id="zone2" /> </g>
+				<g id="zone3a" style="stroke:none" transform="matrix(1.0238797,0,0,1,-16.097625,0.70710678)"> <path id="sector1c" style="fill:#d4d4d4;stroke:none" d="M 378,669 C 515.35193,762.66809 702.50493,775.94091 851.63276,702.34955 872.60826,693.08849 891.662,680.18892 911,668 886.33333,628.66667 861.66667,589.33333 837,550 760.75162,602.23621 663.54006,620.96657 573.2855,601.36087 530.26789,592.77279 489.47486,574.16497 453,550 c -25,39.66667 -50,79.33333 -75,119 z" id="zone3" /> </g>
 				<!-- curves for barcaccia --><path id="barcacciasx" style="fill:none;stroke:#4d4d4d;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" d="m 843.19975,136.54992 c -8.29289,11.7506 -10.13388,24.098 -9.88388,35.19454 0,10.78338 1.38083,26.73655 10.92677,41.94455 7.07107,9.89949 14.46142,16.12347 28.95711,17.36091 14.31914,0.9584 25.02052,-7.66912 27.32322,-18.37652" />
 				<path id="barcacciasx" style="fill:none;stroke:#4d4d4d;stroke-width:4;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" d="m 452.20889,137.21358 c 8.29289,11.7506 10.13388,24.098 9.88388,35.19454 0,10.78338 -1.38083,26.73655 -10.92677,41.94455 -7.07107,9.89949 -14.46142,16.12347 -28.95711,17.36091 -14.31914,0.9584 -25.02052,-7.66912 -27.32322,-18.37652" />
 				<!-- 3 arches for gallerie --><path d="M145,255 a1,1 0 0,0 995,0" fill="none" stroke="#555" stroke-width="4"/><path d="M270,230 a1,1 0 0,0 755,0" fill="none" stroke="#555" stroke-width="4"/><path d="M395,230 a1,1 0 0,0 505,0" fill="none" stroke="#555" stroke-width="4"/>
@@ -317,17 +318,17 @@
 				<!-- 3 horizontal lines, for palcoscenico --><line x1="115" y1="115" x2="145" y2="115" stroke="#555" stroke-width="4" /><line x1="240" y1="115" x2="270" y2="115" stroke="#555" stroke-width="4" /><line x1="365" y1="115" x2="395" y2="115" stroke="#555" stroke-width="4" /><!-- horizontal lines, dx --><line x1="1140" y1="115" x2="1170" y2="115" stroke="#555" stroke-width="4" /><line x1="1025" y1="115" x2="1055" y2="115" stroke="#555" stroke-width="4" /><line x1="900" y1="115" x2="930" y2="115" stroke="#555" stroke-width="4" />
 				<!-- text labels, format styles --><style>.big { font: bold 3em sans-serif; } .med { font: bold 2em sans-serif; } .let { font: bold 1.5em sans-serif; } .sma { font: bold 0.8em sans-serif; } </style>
 				<text x="645" y="65" class="big" fill="#fff" text-anchor="middle">TEATRO SOCIALE</text><text x="645" y="100" class="med" fill="#fff" text-anchor="middle">palcoscenico</text>
-				<text x="305" y="50" class="sma" fill="#606">PROSCENIO 1</text><text x="906" y="50" class="sma" fill="#606">PROSCENIO 1</text><text x="175" y="50" class="sma" fill="#606">PROSCENIO 2</text><text x="1030" y="50" class="sma" fill="#606">PROSCENIO 2</text><text x="60" y="50" class="sma" fill="#606">PROSCENIO 3</text><text x="1140" y="50" class="sma" fill="#606">PROSCENIO 3</text>
-				<text x="405" y="135" class="sma" fill="#606">BARCACCIA sx</text><text x="805" y="135" class="sma" fill="#606">BARCACCIA dx</text>
-				<text x="635" y="135" class="sma" fill="#c0c" text-anchor="end">LATO SINISTRO</text><text x="655" y="135" class="sma" fill="#c0c" text-anchor="start">LATO DESTRO</text>
-				<text x="645" y="275" class="med" fill="#606" text-anchor="middle">PLATEA</text><text x="645" y="470" class="med" fill="#606" text-anchor="middle">PLATEA</text><text x="645" y="570" text-anchor="middle" class="let" fill="#c0c">CENTRALE</text><rect x="582" y="524" width="130" height="26" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="10 5"></rect><text x="645" y="542" text-anchor="middle" class="sma" fill="#666">REGIA</text>
-				<text x="645" y="595" class="med" fill="#606" text-anchor="middle">GALLERIA 1</text><text x="645" y="740" class="med" fill="#606" text-anchor="middle">GALLERIA 2</text><text x="645" y="935" class="med" fill="#606" text-anchor="middle">GALLERIA 3</text>
-				<text x="50" y="560" class="let" fill="#c0c" text-anchor="start">LATO</text><text x="50" y="590" class="let" fill="#c0c" text-anchor="start">SINISTRO</text>
-				<text x="1240" y="560" class="let" fill="#c0c" text-anchor="end">LATO</text><text x="1240" y="590" class="let" fill="#c0c" text-anchor="end">DESTRO</text>
-				<text x="645" y="910" class="let" fill="#c0c" text-anchor="middle">CENTRALE</text>
-				<text x="310" y="110" class="med" fill="#606" transform="rotate(270 310,110)" text-anchor="end">GALLERIA 1</text><text x="1000" y="110" class="med" fill="#606" transform="rotate(270 1000,110)" text-anchor="end">GALLERIA 1</text>
-				<text x="185" y="110" class="med" fill="#606" transform="rotate(270 185,110)" text-anchor="end">GALLERIA 2</text><text x="1125" y="110" class="med" fill="#606" transform="rotate(270 1125,110)" text-anchor="end">GALLERIA 2</text>
-				<text x="75" y="110" class="med" fill="#606" transform="rotate(270 75,110)" text-anchor="end">GALLERIA 3</text><text x="1235" y="110" class="med" fill="#606" transform="rotate(270 1235,110)" text-anchor="end">GALLERIA 3</text>
+				<text x="305" y="50" class="sma" fill="#909">PROSCENIO 1</text><text x="906" y="50" class="sma" fill="#909">PROSCENIO 1</text><text x="175" y="50" class="sma" fill="#909">PROSCENIO 2</text><text x="1030" y="50" class="sma" fill="#909">PROSCENIO 2</text><text x="60" y="50" class="sma" fill="#909">PROSCENIO 3</text><text x="1140" y="50" class="sma" fill="#909">PROSCENIO 3</text>
+				<text x="405" y="135" class="sma" fill="#909">BARCACCIA sx</text><text x="805" y="135" class="sma" fill="#909">BARCACCIA dx</text>
+				<text x="635" y="135" class="sma" fill="#e0e" text-anchor="end">LATO SINISTRO</text><text x="655" y="135" class="sma" fill="#e0e" text-anchor="start">LATO DESTRO</text>
+				<text x="645" y="275" class="med" fill="#909" text-anchor="middle">PLATEA</text><text x="645" y="470" class="med" fill="#909" text-anchor="middle">PLATEA</text><text x="645" y="570" text-anchor="middle" class="let" fill="#e0e">CENTRALE</text><rect x="582" y="524" width="130" height="26" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="10 5"></rect><text x="645" y="542" text-anchor="middle" class="sma" fill="#666">REGIA</text>
+				<text x="645" y="595" class="med" fill="#909" text-anchor="middle">GALLERIA 1</text><text x="645" y="740" class="med" fill="#909" text-anchor="middle">GALLERIA 2</text><text x="645" y="935" class="med" fill="#909" text-anchor="middle">GALLERIA 3</text>
+				<text x="50" y="560" class="let" fill="#e0e" text-anchor="start">LATO</text><text x="50" y="590" class="let" fill="#e0e" text-anchor="start">SINISTRO</text>
+				<text x="1240" y="560" class="let" fill="#e0e" text-anchor="end">LATO</text><text x="1240" y="590" class="let" fill="#e0e" text-anchor="end">DESTRO</text>
+				<text x="645" y="910" class="let" fill="#e0e" text-anchor="middle">CENTRALE</text>
+				<text x="310" y="110" class="med" fill="#909" transform="rotate(270 310,110)" text-anchor="end">GALLERIA 1</text><text x="1000" y="110" class="med" fill="#909" transform="rotate(270 1000,110)" text-anchor="end">GALLERIA 1</text>
+				<text x="185" y="110" class="med" fill="#909" transform="rotate(270 185,110)" text-anchor="end">GALLERIA 2</text><text x="1125" y="110" class="med" fill="#909" transform="rotate(270 1125,110)" text-anchor="end">GALLERIA 2</text>
+				<text x="75" y="110" class="med" fill="#909" transform="rotate(270 75,110)" text-anchor="end">GALLERIA 3</text><text x="1235" y="110" class="med" fill="#909" transform="rotate(270 1235,110)" text-anchor="end">GALLERIA 3</text>
 				<!-- Platea, central-letters --><text x="644" y="178" class="let" fill="#000" text-anchor="middle">A</text><text x="644" y="196" class="let" fill="#000" text-anchor="middle">B</text><text x="644" y="214" class="let" fill="#000" text-anchor="middle">C</text><text x="644" y="232" class="let" fill="#000" text-anchor="middle">D</text><text x="644" y="250" class="let" fill="#000" text-anchor="middle">E</text><text x="644" y="295" class="let" fill="#000" text-anchor="middle">F</text><text x="644" y="313" class="let" fill="#000" text-anchor="middle">G</text><text x="644" y="331" class="let" fill="#000" text-anchor="middle">H</text><text x="644" y="349" class="let" fill="#000" text-anchor="middle">I</text><text x="644" y="367" class="let" fill="#000" text-anchor="middle">L</text><text x="644" y="385" class="let" fill="#000" text-anchor="middle">M</text><text x="644" y="403" class="let" fill="#000" text-anchor="middle">N</text><text x="644" y="421" class="let" fill="#000" text-anchor="middle">O</text><text x="644" y="439" class="let" fill="#000" text-anchor="middle">P</text>
 				<!-- Gallerie 1-2-3, top-letters --><text x="85" y="320" class="let" fill="#000" text-anchor="middle" transform="rotate(60 85,320)">G</text><text x="1210" y="320" class="let" fill="#000" text-anchor="middle" transform="rotate(-60 1210,320)">G</text><text x="195" y="295" class="let" fill="#000" text-anchor="middle" transform="rotate(60 195,295)">E</text><text x="1100" y="295" class="let" fill="#000" text-anchor="middle" transform="rotate(-60 1100,295)">E</text><text x="320" y="295" class="let" fill="#000" text-anchor="middle" transform="rotate(60 320,295)">E</text><text x="970" y="300" class="let" fill="#000" text-anchor="middle" transform="rotate(-60 970,295)">E</text>
 				<!-- Galleria 1, central-letters --><text x="445" y="430" class="let" fill="#000" text-anchor="middle" transform="rotate(40 445,425)">A</text><text x="850" y="430" class="let" fill="#000" text-anchor="middle" transform="rotate(-40 845,430)">A</text><text x="430" y="450" class="let" fill="#000" text-anchor="middle" transform="rotate(40 430,445)">B</text><text x="865" y="455" class="let" fill="#000" text-anchor="middle" transform="rotate(-40 855,450)">B</text><text x="415" y="470" class="let" fill="#000" text-anchor="middle" transform="rotate(40 415,465)">C</text><text x="880" y="480" class="let" fill="#000" text-anchor="middle" transform="rotate(-40 865,470)">C</text><text x="400" y="490" class="let" fill="#000" text-anchor="middle" transform="rotate(40 400,485)">D</text><text x="895" y="505" class="let" fill="#000" text-anchor="middle" transform="rotate(-40 875,490)">D</text>
@@ -374,8 +375,7 @@
 						}
 					}
 					]]></script><?php
-				$sql = "SELECT rowid, *
-						  FROM live_sid"; // Create a query to read all the seats data from DB
+				$sql = "SELECT rowid, FROM live_sid"; // Create a query to read all the seats data from DB
 				$query = $db->query($sql); // Executing the query
 				while($row = $query->fetchArray()) { // Generating the SVG code for every seat with color, popup and click funcions and data...
 					?><circle 

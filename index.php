@@ -49,6 +49,7 @@
 				 VALUES ('$dtm', '$typ', '$req', '$ipa', '$ref', '$bua', '$lng')"; // Creating a query to store log data
 	$db->exec($sql); // Executing the query
 	$g = ""; // $g contain optional message about invalid username or password
+	/* ########## Verify login credential for authorized user ########## */
 	if (isset($_POST['username']) && isset($_POST['password']) && !empty($_POST['username']) && !empty($_POST['password'])) { // if submited username and password...
 		$sql = "SELECT rowid, *
 				  FROM 'live_uid'
@@ -79,7 +80,7 @@
 		<link href="css/bootstrap.min.css" rel="stylesheet"><!-- These three lines for Botstrap framework... -->
 		<link href="css/bootstrap-responsive.min.css" rel="stylesheet">
 		<script src="js/bootstrap.min.js"></script>
-		<!-- May be useful an external CSS file... --><style>
+		<style><!-- May be useful an external CSS file...? -->
 			#header-logo { height: 6em !important; }
 			#header-live { height: 6em !important; margin-bottom: 2em; text-align: center; background-size: contain !important; background-color: #000 }
 			@media( min-width: 520px ){ #header-live { background-image: url('img/canossacampus.png'), url('img/pappagallo.jpg'); background-position: top left, bottom right; background-repeat: no-repeat, no-repeat; } }
@@ -91,10 +92,10 @@
 			#ticket { padding: 7em 0.5em 0.5em; max-width: 20em; margin: 0 auto 1em; border: 0.5em solid transparent; border-image: url('img/border-strip.png') 80 round round; box-shadow: 0.4em 0.6em 1.2em #999; background: url('img/canossa-live.png') no-repeat top left; background-size: contain; background-color: #eee; }
 		</style>
 	</head>
-	<body id="live-body" style="background: none; padding: 20px 0;">
-		<header id="header-live"><a href="https://www.canossacampus.it/live"><img id="header-logo" src="img/campus-live.png" title="CANOSSA CAMPUS HAPPENING LIVE 2019 | VENERDI 7 GIUGNO 2019 ORE 20.45 TEATRO SOCIALE, BRESCIA"></a></header> <!-- Header displayed only outside Wordpress -->
+	<body id="live-body" style="background: none; padding: 20px 0;"><!-- Below Header is displayed only outside Wordpress* -->
+		<header id="header-live"><a href="https://www.canossacampus.it/live"><img id="header-logo" src="img/campus-live.png" title="CANOSSA CAMPUS HAPPENING LIVE 2019 | VENERDI 7 GIUGNO 2019 ORE 20.45 TEATRO SOCIALE, BRESCIA"></a></header>
 		<div id="live-main" class="container" style="text-align: center; width: 98%; ">
-			<script type="text/javascript"><!-- This is the Javascript that display above Header only outside Wordpress -->
+			<script type="text/javascript"><!-- *This is the Javascript that display above Header only outside Wordpress -->
 				if ( window == window.top ) {
 					document.getElementById("live-body").style.padding = "0";
 					document.getElementById("zone1").style.fill = "rgb(255,255,255)";
@@ -128,6 +129,7 @@
 							 WHERE md5 = '".$m."' AND status = '2'"; // Create a query to found exact md5 of QR Code of a regular reservation (status = 2)
 					$query = $db->query($sql); // Executing the query
 					$row = $query->fetchArray();
+					/* ########## Check if requested verification is a valid reservation or not... ########## */
 					if ( $row > 0 ) {
 						$query = $db->query($sql); // Executing the query, again ?>
 						<table border="1" cellpadding="4" style="text-align:center;padding:0.2em;margin:0 auto;border:1px solid #333; border-collapse:collapse;">
@@ -226,7 +228,8 @@
 						QRcode::png("https://www.canossacampus.it/LIWE?verifica=".$m, $filename, 'M', 4, 2);
 						/* ########## Sending also an EMail to the Booker ########## */
 						if ( !mail_attachment($_POST['email'], $PNG_TEMP_DIR, basename($filename), "Campus Happening Live, 2019 - Prenotazione confermata", "Buongiorno, grazie per aver prenotato online, vi aspettiamo venerd&igrave; 7 giugno 2019 alle 20.45 al Teatro Sociale.<br/>Per tutti i dettagli della prenotazione, qui confermata, aprire <a href='https://www.canossacampus.it/LIWE?verifica=".str_replace("Live2019_", "", str_replace(".png", "", basename($filename)))."'>l'indirizzo</a> contenuto nel Codice QR allegato.<br />Istruzioni e informazioni disponibili a questo <a href='http://canossacampus.it/LIVE'>indirizzo</a>.<br /><br /><h4>".$a."</h4>".str_replace($p, "<br />", $s)."<br />&nbsp;".$h.$b) ) { 
-							?><script type="text/javascript">alert("ATTENZIONE, problemi nell'invio dell'E-Mail...")</script><?php } ?>
+							?><script type="text/javascript">alert("ATTENZIONE, problemi nell'invio dell'E-Mail...")</script>
+						<?php } ?>
 						<div id="smartphone">
 							<img src="<?=$PNG_WEB_DIR.basename($filename)?>" /><br /><?php // Showing the QR Code from the md5 of $s (the unique key of this reservation)
 					}
@@ -301,7 +304,6 @@
 					</form>
 				</div>
 			<?php } ?>
-
 			<!-- ########## Reading DB to generate the interactive SVG map of seats ########## -->
 			<svg width="100%" class="img-fluid" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" viewBox="0 0 1280 960">
 				<!-- grey rectangle for palcoscenico --><rect width="505" height="100" fill="#999" x="395" y="15"></rect>
@@ -395,8 +397,7 @@
 			</svg>
 		</div>
 	</body>
-</html>
-<?php
+</html><?php
 function mail_attachment($mailto, $path, $filename, $subject, $message) {
 	$file = $path.$filename;
 	$file_size = filesize($file);

@@ -7,7 +7,7 @@ For more information read the description at the top of the index.php file.
 
 ## Screenshot
 A screenshot of the Web App, from mobile device, inside a Wordpress site and infographic on how to use.
-<div style="margin:0 auto;"><img src="https://www.canossacampus.it/test/LabWeb/LIVE/live1819b/wp-content/campus/img/mobile.png" width="25%"> <img src="https://www.canossacampus.it/test/LabWeb/LIVE/live1819b/wp-content/uploads/2019/05/istruzioni-1.png" width="70%"></div>
+<div style="margin:0 auto;"><img src="https://www.canossacampus.it/test/LabWeb/LIVE/live1819b/wp-content/campus/img/mobile-1.png" width="25%"> <img src="https://www.canossacampus.it/test/LabWeb/LIVE/live1819b/wp-content/uploads/2019/05/istruzioni-1.png" width="70%"></div>
 
 ## Credits
 Thanks to the authors of these projects we've used:

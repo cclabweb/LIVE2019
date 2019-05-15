@@ -34,13 +34,13 @@
 	$lng = (isset($bua) ? $lng : $_SERVER['HTTP_ACCEPT_LANGUAGE'] );
 	$log = $dtm."\t"."\t".$ipa."\t".$ref."\t".$bua."\t".$lng."\r\n";
 	$sql = "INSERT INTO live_log (datetime, log_type, req_data, ipaddress, referrer, useragent, language) 
-					VALUES ('$dtm', '$typ', '$req', '$ipa', '$ref', '$bua', '$lng')"; // Creating a query to store log data
+		     VALUES ('$dtm', '$typ', '$req', '$ipa', '$ref', '$bua', '$lng')"; // Creating a query to store log data
 	$db->exec($sql); // Executing the query
 	$g = ""; // $g contain optional message about invalid username or password
 	if (isset($_POST['username']) && isset($_POST['password']) && !empty($_POST['username']) && !empty($_POST['password'])) { // if submited username and password...
 		$sql = "SELECT rowid, *
-				  FROM 'live_uid'
-				 WHERE username = '".$_POST['username']."' AND password = '".md5($_POST['password'])."'"; // Create a query for identical username and md5 of password
+			  FROM 'live_uid'
+			 WHERE username = '".$_POST['username']."' AND password = '".md5($_POST['password'])."'"; // Create a query for identical username and md5 of password
 		$query = $db->query($sql); // Executing the query...
 		$row = $query->fetchArray(); // Collects every resulting records in $row
 		if ($row > 0) { // if found at last a single record... (that's unique cause the username is unique in DB)
@@ -102,8 +102,7 @@
 					zone3.style.fill = "rgb(212,212,212)";
 				}
 			</script>
-			<div class="container">
-				<?php
+			<div class="container"><?php
 				$m = "";
 				/* ########## Someone want to verify a QR Code, showing also all reservation details ########## */
 				if (isset($_GET['verifica'])) {
@@ -282,7 +281,6 @@
 					</form>
 				</div>
 			<?php } ?>
-
 			<!-- ########## Reading DB to generate the interactive SVG map of seats ########## -->
 			<svg width="100%" class="img-fluid" xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:svgjs="http://svgjs.com/svgjs" viewBox="0 0 1280 960">
 				<!-- palcoscenico --><rect width="505" height="100" fill="#999" x="395" y="15"></rect><!-- central-area (3 gray arcs) -->
@@ -375,8 +373,7 @@
 			</svg>
 		</div>
 	</body>
-</html>
-<?php
+</html><?php
 function mail_attachment($mailto, $path, $filename, $subject, $message) {
 	$file = $path.$filename;
 	$file_size = filesize($file);

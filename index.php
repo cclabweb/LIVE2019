@@ -70,7 +70,7 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"><!-- For mobile... -->
-		<title>Campus Happening Live, 2019</title>
+		<title>Campus Happening Live, 2019 - Teatro Sociale. venerdi 7 giugno 2019, ore 20.45</title>
 		<link href="css/bootstrap.min.css" rel="stylesheet"><!-- These three lines for Botstrap framework... -->
 		<link href="css/bootstrap-responsive.min.css" rel="stylesheet">
 		<script src="js/bootstrap.min.js"></script>
@@ -144,7 +144,7 @@
 								$t = $row['timestamp'];
 							} ?>
 							<caption><h4>Dettagli Prenotazione</h4>
-								<h3 style="font-size:1.6em;font-family:Times,Serif;color:#1c5280;font-style:italic;line-height:1em;">venerdì 7 giugno 2019<br>Teatro Sociale, 20.30</h3><div>
+								<h3 style="font-size:1.6em;font-family:Times,Serif;color:#1c5280;font-style:italic;line-height:1em;">venerdì 7 giugno 2019<br>Teatro Sociale, 20.45</h3><div>
 								Incaricato: <?=$u?><br />
 								Prenotante: <?=$l?><br />
 								Data e ora: <?=$t?><br />&nbsp;
@@ -212,7 +212,7 @@
 						$filename = $PNG_TEMP_DIR.'Live2019_'.$m.'.png';
 						QRcode::png($current_url."index.php?verifica=".$m, $filename, 'M', 4, 2);
 						/* ########## Sending also an EMail to the Booker ########## */
-						if ( !mail_attachment($_POST['email'], $PNG_TEMP_DIR, basename($filename), "Campus Happening Live, 2019 - Prenotazione confermata", "Buongiorno, grazie per aver prenotato online, vi aspettiamo venerd&igrave; 7 giugno 2019 alle 20.30 al Teatro Sociale.<br/>Per tutti i dettagli della prenotazione, qui confermata, aprire <a href='https://canossacampus.it/LIWE?verifica=".str_replace("Live2019_", "", str_replace(".png", "", basename($filename)))."'>l'indirizzo</a> contenuto nel Codice QR allegato.<br />Istruzioni e informazioni disponibili a questo <a href='http://canossacampus.it/LIVE'>indirizzo</a>.<br /><br /><h4>".$a."</h4>".str_replace($p, "<br />", $s)."<br />&nbsp;".$h.$b) ) { 
+						if ( !mail_attachment($_POST['email'], $PNG_TEMP_DIR, basename($filename), "Campus Happening Live, 2019 - Prenotazione confermata", "Buongiorno, grazie per aver prenotato online, vi aspettiamo venerd&igrave; 7 giugno 2019 alle 20.45 al Teatro Sociale.<br/>Per tutti i dettagli della prenotazione, qui confermata, aprire <a href='https://canossacampus.it/LIWE?verifica=".str_replace("Live2019_", "", str_replace(".png", "", basename($filename)))."'>l'indirizzo</a> contenuto nel Codice QR allegato.<br />Istruzioni e informazioni disponibili a questo <a href='http://canossacampus.it/LIVE'>indirizzo</a>.<br /><br /><h4>".$a."</h4>".str_replace($p, "<br />", $s)."<br />&nbsp;".$h.$b) ) { 
 							?><script type="text/javascript">alert("ATTENZIONE, problemi nell'invio dell'E-Mail...")</script><?php } ?>
 						<div id="smartphone">
 							<img src="<?=$PNG_WEB_DIR.basename($filename)?>" /><br /><?php // Showing the QR Code from the md5 of $s (the unique key of this reservation)

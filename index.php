@@ -10,7 +10,7 @@
  * TO DO: price is hard encoded in some lines (Javascript), need to be read from DB, may be useful to check existance of recipient email before send confirmation
  * --------------------------------------------------------------------------------
  * CPSoft, 1989-2019. - ocdl.it/cw - Released 01/05/2019 - Updated 17.25 15/05/2019
- * Licenza software GNU/GPL 3.0 - Licenza documentazione Creative Commons BY-SA 2.5
+ * Licenza software GNU/GPL 3.0 - Licenza documentazione Creative Commons BY-SA 4.0
  * ============================================================================= */
 	$db = new SQLite3('../database/wordpress.sqlite'); // open SQLite database (DB)
 	include('./phpqrcode/qrlib.php'); // Include QR decode library

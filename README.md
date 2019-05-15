@@ -15,4 +15,4 @@ Thanks to the authors of these projects we've used:
 - PHP QR Code Library from http://phpqrcode.sourceforge.net/
 
 ## Licence
-This work is released under the above licenses, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank"><img src="https://licensebuttons.net/l/by-sa/4.0/88x31.png" title="CC-BY-SA 4.0"></a> that is also interoperable with the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank"><img src="https://www.gnu.org/graphics/gplv3-88x31.png" title="GNU GPL3"></a>.
+This work is released under the above licenses, <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank"><img src="https://licensebuttons.net/l/by-sa/4.0/88x31.png" title="CC-BY-SA 4.0"></a> that is also one way interoperable with the <a href="https://www.gnu.org/licenses/gpl-3.0.en.html" target="_blank"><img src="https://www.gnu.org/graphics/gplv3-88x31.png" title="GNU GPL3"></a>

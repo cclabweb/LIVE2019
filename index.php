@@ -77,7 +77,7 @@
 		<!-- May be useful an external CSS file... --><style>
 			#header-logo { height: 6em !important; }
 			#header-live { height: 6em !important; margin-bottom: 2em; text-align: center; background-size: contain !important; background-color: #000 }
-			@media( min-width: 520px ){ #header-live { background-image: url('img/canossacampus.png'), url('img/cropped-pappagallo.jpg'); background-position: top left, bottom right; background-repeat: no-repeat, no-repeat; } }
+			@media( min-width: 520px ){ #header-live { background-image: url('img/canossacampus.png'), url('img/pappagallo.jpg'); background-position: top left, bottom right; background-repeat: no-repeat, no-repeat; } }
 			@media( max-width: 519px ){ #header-live { background-image: url('img/canossacampus_logo.png'); background-position: top left; background-repeat: no-repeat; text-align: right; } }
 			#smartphone { padding: 0.5em; max-width: 20em; margin: 0 auto; box-shadow: 0.4em 0.6em 1.2em #999; border-radius: 1.2em;
 				border-top: 30px solid #333; border-bottom: 60px solid #333; border-left: 10px solid #333; border-right: 10px solid #333;

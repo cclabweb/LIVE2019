@@ -20,10 +20,10 @@
 	} else {
 		session_start(); // Enable Session
 	}
-	$main_folder = str_replace('\\','/',dirname(__FILE__) );
-	$document_root = str_replace('\\','/',$_SERVER['DOCUMENT_ROOT'] );
+	$main_folder = str_replace('\\','/',dirname(__FILE__) ); // Path with script filename included
+	$document_root = str_replace('\\','/',$_SERVER['DOCUMENT_ROOT'] ); // Host domain name
 	$main_folder = str_replace( $document_root, '', $main_folder);
-	if( $main_folder ) {
+	if( $main_folder ) { // To obtain the full URL, without script, but with current protocol and ending with '/'
 	    $current_url = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['SERVER_NAME']. '/' . ltrim( $main_folder, '/' ) . '/';
 	} else {
 	    $current_url = $_SERVER['REQUEST_SCHEME'].'://'.rtrim( $_SERVER['SERVER_NAME'], '/'). '/';
@@ -63,8 +63,7 @@
 			$g="Nome utente o password non corretti."; // ...submited username and password are invalid, alert message in $g
 			mail("[PRIVACY]@canossacampus.it", "LIVE2019, ".$g." ".$_POST['username'], $log);
 		}
-	}
-	/* ########## Starting HTML document (meta, title, CSS external and internal, JS) ########## */
+	} /* ########## Starting HTML document (meta, title, CSS external and internal, JS) ########## */
 ?>
 <!DOCTYPE html>
 <html lang="it">

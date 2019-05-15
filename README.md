@@ -5,6 +5,10 @@ The Web App may be integrated into a Wordpress site (https://canossacampus.it/LI
 ## Description
 For more information read the description at the top of the index.php file.
 
+## Screenshot
+A screenshot of the Web App, from mobile device, inside Wordpress site
+(https://www.canossacampus.it/test/LabWeb/LIVE/live1819b/wp-content/campus/img/mobile-1.png)
+
 ## Credits
 Thanks to the authors of these projects we've used:
 - Bootstrap 4.0 Framework from https://getbootstrap.com

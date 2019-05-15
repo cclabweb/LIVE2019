@@ -20,6 +20,14 @@
 	} else {
 		session_start(); // Enable Session
 	}
+	$main_folder = str_replace('\\','/',dirname(__FILE__) );
+	$document_root = str_replace('\\','/',$_SERVER['DOCUMENT_ROOT'] );
+	$main_folder = str_replace( $document_root, '', $main_folder);
+	if( $main_folder ) {
+	    $current_url = $_SERVER['REQUEST_SCHEME'].'://'.$_SERVER['SERVER_NAME']. '/' . ltrim( $main_folder, '/' ) . '/';
+	} else {
+	    $current_url = $_SERVER['REQUEST_SCHEME'].'://'.rtrim( $_SERVER['SERVER_NAME'], '/'). '/';
+	}
 	/* ########## Collect every useful data and store in the Log table ########## */
 	$now = DateTime::createFromFormat('U.u', microtime(true))->setTimezone(new DateTimeZone('Europe/Rome'));
 	$dtm = $now->format("Y-m-d H.i.s.uP");
@@ -203,7 +211,7 @@
 						$PNG_TEMP_DIR = dirname(__FILE__)."/phpqrcode/temp/";
 						$PNG_WEB_DIR = './phpqrcode/temp/';
 						$filename = $PNG_TEMP_DIR.'Live2019_'.$m.'.png';
-						QRcode::png("https://www.canossacampus.it/test/LabWeb/LIVE/live1819b/wp-content/campus/index.php?verifica=".$m, $filename, 'M', 4, 2);
+						QRcode::png($current_url."index.php?verifica=".$m, $filename, 'M', 4, 2);
 						/* ########## Sending also an EMail to the Booker ########## */
 						if ( !mail_attachment($_POST['email'], $PNG_TEMP_DIR, basename($filename), "Campus Happening Live, 2019 - Prenotazione confermata", "Buongiorno, grazie per aver prenotato online, vi aspettiamo venerd&igrave; 7 giugno 2019 alle 20.30 al Teatro Sociale.<br/>Per tutti i dettagli della prenotazione, qui confermata, aprire <a href='https://canossacampus.it/LIWE?verifica=".str_replace("Live2019_", "", str_replace(".png", "", basename($filename)))."'>l'indirizzo</a> contenuto nel Codice QR allegato.<br />Istruzioni e informazioni disponibili a questo <a href='http://canossacampus.it/LIVE'>indirizzo</a>.<br /><br /><h4>".$a."</h4>".str_replace($p, "<br />", $s)."<br />&nbsp;".$h.$b) ) { 
 							?><script type="text/javascript">alert("ATTENZIONE, problemi nell'invio dell'E-Mail...")</script><?php } ?>
@@ -374,6 +382,8 @@
 		</div>
 	</body>
 </html><?php
+// Ideas from: https://stackoverflow.com/questions/3582126/php-mail-cc-field
+// and: https://stackoverflow.com/questions/29405407/send-email-with-attachment-php-not-working
 function mail_attachment($mailto, $path, $filename, $subject, $message) {
 	$file = $path.$filename;
 	$file_size = filesize($file);
